@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "message-service"
+version = "0.1.0"
+description = ""
+authors = ["nicourrrn <s57111702@gmail.com>"]
+readme = "README.md"
+packages = [{include = "message_service"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.100.1"
+sqlalchemy = "^2.0.19"
+psycopg = {extras = ["binary"], version = "^3.1.9"}
+
+
+[tool.poetry.group.dev.dependencies]
+uvicorn = "^0.23.1"
+pytest = "^7.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.setuptools]
+packages = ["message_service/"]

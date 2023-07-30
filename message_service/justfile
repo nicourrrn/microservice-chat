@@ -1,0 +1,6 @@
+run:
+    poetry run uvicorn main:app --reload
+
+docker-build:
+    docker build -t message-service .
+    docker run -p 0.0.0.0:8000:8000 message-service
