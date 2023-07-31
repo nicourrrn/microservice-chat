@@ -14,6 +14,9 @@ func main() {
     app := fiber.New()
 
     app.Post("/login", pkg.Login)
+    app.Post("/get_id", pkg.GetIdFromToken)
+
+    go pkg.HandleMessages()
 
     log.Fatal(app.Listen(":3000"))
 }

@@ -4,14 +4,16 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-    "github.com/golang-jwt/jwt/v5"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type LoginResp struct {
     Token string `json:"token"`
+    jwt.RegisteredClaims
 }
 type LoginReq struct {
     Id int `json:"id"`
+    jwt.RegisteredClaims
 }
 
 func Login(c *fiber.Ctx) error {
@@ -32,4 +34,13 @@ func Login(c *fiber.Ctx) error {
     }
     
     return c.JSON(LoginResp{Token: token})
+}
+
+
+func GetIdFromToken(c *fiber.Ctx) error {
+    var req LoginResp
+    if err := c.BodyParser(&req); err != nil {
+        return err 
+    }
+    return c.JSON(LoginReq{Id: getIdFromToken(req.Token)})
 }
