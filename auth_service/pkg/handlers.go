@@ -1,11 +1,14 @@
 package pkg
 
 import (
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 )
+
+var secret_key = os.Getenv("secret_key")
 
 type LoginResp struct {
     Token string `json:"token"`
@@ -28,7 +31,7 @@ func Login(c *fiber.Ctx) error {
         "exp": time.Now().Add(time.Hour).Unix(),
     }
     token, err := jwt.NewWithClaims(jwt.SigningMethodHS256,
-            claims).SignedString([]byte("secret_key"))
+            claims).SignedString([]byte(secret_key))
     if err != nil {
         return c.SendStatus(fiber.StatusInternalServerError)
     }

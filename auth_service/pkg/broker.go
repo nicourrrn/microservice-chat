@@ -3,13 +3,13 @@ package pkg
 import (
 	"context"
 	"log"
-
+    "os" 
 	"github.com/redis/go-redis/v9"
 )
 
 var ctx = context.Background()
 var redisClient = redis.NewClient(&redis.Options{
-    Addr: "broker:6379",
+    Addr: os.Getenv("broker_addr"),
     DB: 0,
 })
 
