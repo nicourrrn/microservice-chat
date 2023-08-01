@@ -17,6 +17,7 @@ export const App: Component = () => {
     const [msg, setMsg] = createSignal('')
    
     const ws = createWS("ws://service.me/ws/msg")
+    ws.send(token())
     const wsObserver = createWSReceiver(ws)
     const [msgList, setMsgList] = createSignal([] as Message[])
 

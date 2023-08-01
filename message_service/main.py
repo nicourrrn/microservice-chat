@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Header, WebSocket   
+from fastapi import FastAPI, Header, WebSocket 
+from fastapi.websockets import WebSocketState
 from sqlalchemy.orm  import Session
 from sqlalchemy import select
 import aiohttp
@@ -37,18 +38,19 @@ async def post_message(message: ser_models.Message,
         return msg.id
 
 
-clients = []
+clients: list[tuple[str, WebSocket]] = []
 
 @app.websocket("/msg")
 async def msg_publisher(websocket: WebSocket):
     await websocket.accept()
-    clients.append(websocket)
-    print("New client!!!")
+    token = await websocket.receive_text()
+    clients.append((token, websocket))
+    print(token)
     while True:
         msg = await websocket.receive_text()
         for c in clients:
             if c is not websocket: 
-                await c.send_text(msg) 
+                await c[1].send_text(msg) 
         orm_msg = orm_models.Message(text=msg)
         with Session(engine) as s:
             s.add(orm_msg)
