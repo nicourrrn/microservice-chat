@@ -1,4 +1,4 @@
-import type { Component } from 'solid-js';
+import type { Component, Accessor } from 'solid-js';
 import { For, createSignal, onMount, createEffect, on } from 'solid-js';
 import { createWS, createWSState } from '@solid-primitives/websocket'
 import type { Message } from './models';
@@ -6,6 +6,14 @@ import type { Message } from './models';
 import axios from 'axios';
 
 import styles from './App.module.css';
+
+const createWSReceiver = (ws: WebSocket): Accessor<MessageEvent> => {
+    const [state, setState] = createSignal<MessageEvent>(new MessageEvent(""));
+    ws.addEventListener('message', msg => {
+        setState(msg);
+    })
+    return state;
+}
 
 const App: Component = () => {
     
@@ -18,10 +26,9 @@ const App: Component = () => {
     })
 
     const rawWs = createWS("ws://service.me/ws/msg");
-
-    rawWs.addEventListener('message', msg => {
-        setMessages(old => [...old, {id: 0, text: msg.data}] as Message[]);
-    })
+    const msgReceiver = createWSReceiver(rawWs);
+    createEffect(on(msgReceiver, msg => 
+        setMessages(old => [...old, {id: 0, text: msg.data}])))
       
     return (
         <div class={'content'}>

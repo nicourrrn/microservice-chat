@@ -1,9 +1,8 @@
-from fastapi import FastAPI, Header   
+from fastapi import FastAPI, Header, WebSocket   
 from sqlalchemy.orm  import Session
 from sqlalchemy import select
 import aiohttp
 from typing import Annotated
-
 from message_service.db import (engine, models as orm_models)
 from message_service.seriallizer import models as ser_models
 from message_service.cache import client
@@ -36,3 +35,11 @@ async def post_message(message: ser_models.Message,
         session.add(msg)
         session.commit()
         return msg.id
+
+
+@app.websocket("/msg")
+async def msg_publisher(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Hello world {data}")  
