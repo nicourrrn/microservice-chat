@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"log"
 	"os"
 	"time"
 
@@ -42,6 +43,8 @@ func Login(c *fiber.Ctx) error {
 
 func GetIdFromToken(c *fiber.Ctx) error {
     var req LoginResp
+    log.Print("Req Body: ")
+    log.Println(string(c.Body()))
     if err := c.BodyParser(&req); err != nil {
         return err 
     }

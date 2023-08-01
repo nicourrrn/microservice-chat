@@ -1,50 +1,49 @@
-import type { Component, Accessor } from 'solid-js';
-import { For, createSignal, onMount, createEffect, on } from 'solid-js';
-import { createWS, createWSState } from '@solid-primitives/websocket'
-import type { Message } from './models';
+import type { Component } from "solid-js";
+import type { Message } from "./models";
+import { createSignal, createEffect, on, For, onMount } from "solid-js";
+import { createWS } from "@solid-primitives/websocket";
 
-import axios from 'axios';
+import axios from "axios";
+
+import { createWSReceiver } from "./receiver"; 
+import { Login } from './Login';
 
 import styles from './App.module.css';
 
-const createWSReceiver = (ws: WebSocket): Accessor<MessageEvent> => {
-    const [state, setState] = createSignal<MessageEvent>(new MessageEvent(""));
-    ws.addEventListener('message', msg => {
-        setState(msg);
-    })
-    return state;
-}
 
-const App: Component = () => {
+export const App: Component = () => {
+    const [token, setToken] = createSignal("")
     
-    const [userMsg, setUserMsg] = createSignal("");
-    const [messages, setMessages] = createSignal([] as Message[]);
+    const [msg, setMsg] = createSignal('')
+   
+    const ws = createWS("ws://service.me/ws/msg")
+    const wsObserver = createWSReceiver(ws)
+    const [msgList, setMsgList] = createSignal([] as Message[])
+
+    createEffect(on(wsObserver, (e) => 
+        setMsgList(old => [...old, {id: 0, text: e.data}] as Message[])))
     
     onMount(async () => {
         const resp = await axios.get("http://service.me/msg/list") 
-        setMessages(resp.data);
+        setMsgList(resp.data)
     })
 
-    const rawWs = createWS("ws://service.me/ws/msg");
-    const msgReceiver = createWSReceiver(rawWs);
-    createEffect(on(msgReceiver, msg => 
-        setMessages(old => [...old, {id: 0, text: msg.data}])))
-      
-    return (
-        <div class={'content'}>
-        <div class={'input'}>
-            <input type='text' onChange={msg => setUserMsg(msg.target.value)}
-                value={userMsg()} />
-            <input onClick={() => rawWs.send(userMsg())} type="button" value="send" />
-        </div>
-        <div class={'messages'}>
-            <For each={messages()}>{(m, _) => 
-                <p>{m.text}</p>
-            }
-            </For>
-        </div>
-        </div>
-    );
-};
+    const send = () => {
+        setMsgList(old => [...old, {id: 0, text: msg()}] as Message[])
+        ws.send(msg())
+        setMsg("")
+    }
 
-export default App;
+    return <div class="content">
+        <Login token={token} setToken={setToken}/>
+        <div class={'input'}>
+            <p>Message:</p><input value={msg()} onChange={e => setMsg(e.target.value)} />
+            <button onClick={send}>Send</button>
+        </div> 
+        <div class={styles.messges}>
+            <For each={msgList()}>{(m, _) => 
+                <p>{m.text}</p>
+            }</For>
+        </div>
+        </div>
+}

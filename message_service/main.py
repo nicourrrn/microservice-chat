@@ -37,9 +37,21 @@ async def post_message(message: ser_models.Message,
         return msg.id
 
 
+clients = []
+
 @app.websocket("/msg")
 async def msg_publisher(websocket: WebSocket):
     await websocket.accept()
+    clients.append(websocket)
+    print("New client!!!")
     while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f"Hello world {data}")  
+        msg = await websocket.receive_text()
+        for c in clients:
+            if c is not websocket: 
+                await c.send_text(msg) 
+        orm_msg = orm_models.Message(text=msg)
+        with Session(engine) as s:
+            s.add(orm_msg)
+            s.commit()
+
+
