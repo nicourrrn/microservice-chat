@@ -35,16 +35,16 @@ export const App: Component = () => {
         setMsg("")
     }
 
-    return <div class="content">
+    return <div class={styles.content}>
         <Login token={token} setToken={setToken}/>
-        <div class={'input'}>
-            <p>Message:</p><input value={msg()} onChange={e => setMsg(e.target.value)} />
-            <button onClick={send}>Send</button>
-        </div> 
         <div class={styles.messges}>
             <For each={msgList()}>{(m, _) => 
                 <p>{m.text}</p>
             }</For>
         </div>
+        <div class={'input'}>
+            <p>Message:</p><input value={msg()} onChange={e => setMsg(e.target.value)} />
+            <button onClick={send}>Send</button>
+        </div> 
         </div>
 }

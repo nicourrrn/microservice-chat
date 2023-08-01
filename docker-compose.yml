@@ -2,16 +2,17 @@ version: '3.1'
 
 services:
 
-#  ui:
-#    build: ./ui-service/
-#    volumes: 
-#      - ./ui-service:/app
-#      - frontend:/app/dist
+  ui:
+    build: ./ui-service/
+    volumes: 
+      - ./ui-service:/app
+      - frontend:/app/dist/
+    command: "yarn build"
 
   messages:
     build: ./message_service/
-    volumes: 
-      - "./message_service:/app"
+#    volumes: 
+#      - "./message_service:/app"
     environment: 
       db_username: postgres 
       db_password: example
@@ -22,8 +23,8 @@ services:
 
   auth:
     build: ./auth_service/
-    volumes: 
-      - ./auth_service:/app
+#    volumes: 
+#      - ./auth_service:/app
     depends_on:
       - broker
     environment:
@@ -45,8 +46,6 @@ services:
   db:
     image: postgres
     restart: always
-#    ports:
-#      - 5432:5432
     environment:
       POSTGRES_PASSWORD: example
 
